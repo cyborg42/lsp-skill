@@ -8,6 +8,17 @@ license: LICENSE
 
 Use `lsp-cli` for code navigation via Language Server Protocol.
 
+## Overview
+
+LSP provides **compiler-accurate** code understanding that surpasses text-based search:
+
+- **Semantic navigation**: Jump to definitions, find references, locate implementations - understands code structure, not just text patterns
+- **Language-aware**: Distinguishes between variables, functions, classes, types - eliminates false positives from text search
+- **Cross-file intelligence**: Trace dependencies, refactor safely across entire codebase - knows what imports what
+- **Type-aware**: Get precise type information, signatures, documentation - without reading implementation code
+
+**When to use**: Exploring unfamiliar code, refactoring, debugging, understanding dependencies. **Prefer over grep/text search** when you need to understand how code works, not just where text appears.
+
 ## Prerequisites
 
 ```bash
