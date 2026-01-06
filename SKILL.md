@@ -64,7 +64,7 @@ Navigate nested symbols. Language server resolves the path to exact location.
 
 #### `--find` (or `-f`)
 
-Text-based search within the file (or within `--scope` if specified):
+Text-based search within the file (or within `--scope` if specified). Focus on the exact and unique text snippet. Ignore spaces and newlines in your search string; it matches even if code formatting differs.
 
 **Basic text search**:
 
@@ -72,7 +72,7 @@ Text-based search within the file (or within `--scope` if specified):
 lsp definition main.py --find "process_data"
 ```
 
-Finds first occurrence of the text.
+Finds first occurrence of the text. `--find "a+b"` matches `a + b` or `a\n   + b`.
 
 **Exact position with `<HERE>` marker**:
 
