@@ -23,10 +23,10 @@
 
 ### Modifying SKILL.md
 
-- Keep under 100 lines; move details to `references/`
+- Keep content minimal; move details to `references/`
 - `description` in frontmatter must contain all trigger conditions
 
-### Modifying bp_*.md
+### Modifying bp\_\*.md
 
 - Keep agent-facing indices minimal
 - Use tables for quick scanning

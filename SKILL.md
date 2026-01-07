@@ -1,21 +1,21 @@
 ---
 name: lsp-code-analysis
-description: Code navigation and analysis via LSP. Use when you need to:(1) Navigate to definitions/declarations/implementations, (2) Find all references before refactoring, (3) Get file structure outline, (4) Search symbols by name, (5) Get type signatures and documentation. Language-aware, more accurate than text search.
+description: Semantic codebase intelligence via LSP. Essential for building an accurate mental model of unfamiliar codebases, safely navigating complex dependencies, and performing precise refactoring. Provides compiler-level accuracy for code understanding that surpasses simple text-based search.
 license: LICENSE
 ---
 
 # LSP Code Analysis
 
-Use `lsp-cli` for code navigation via Language Server Protocol.
-
 ## Overview
+
+Use `lsp-cli` for semantic code navigation and analysis via Language Server Protocol (LSP).
 
 LSP provides **compiler-accurate** code understanding that surpasses text-based search:
 
-- **Semantic navigation**: Jump to definitions, find references, locate implementations - understands code structure, not just text patterns
-- **Language-aware**: Distinguishes between variables, functions, classes, types - eliminates false positives from text search
-- **Cross-file intelligence**: Trace dependencies, refactor safely across entire codebase - knows what imports what
-- **Type-aware**: Get precise type information, signatures, documentation - without reading implementation code
+- **Semantic navigation**: Jump to definitions, find references, locate implementations - understands code structure, not just text patterns.
+- **Language-aware**: Distinguishes between variables, functions, classes, types - eliminates false positives from text search.
+- **Cross-file intelligence**: Trace dependencies, refactor safely across entire codebase - knows what imports what.
+- **Type-aware**: Get precise type information, signatures, documentation - without reading implementation code.
 
 **When to use**: Exploring unfamiliar code, refactoring, debugging, understanding dependencies. **Prefer over grep/text search** when you need to understand how code works, not just where text appears.
 
@@ -25,80 +25,28 @@ LSP provides **compiler-accurate** code understanding that surpasses text-based 
 uv tool install lsp-cli
 ```
 
+## Locating Symbols
+
+Most commands use a unified **Locate String** syntax via the `-L` or `--locate` option.
+
+**Syntax**: `<file_path>[:<scope>][@<find>]`
+
+- **Scope**: Narrows search area. Supports line (`:42`), range (`:10,20`), or symbol path (`:User.login`).
+- **Find**: Text pattern within scope. Whitespace-insensitive; matches even if code formatting differs. Use `@text` or `@snippet<|>with_marker` for exact cursor positioning.
+- **Marker**: `<|>` indicates the exact position for symbol resolution (e.g., `user.<|>name`).
+
+**Examples**:
+
+- `main.py:42` - Exactly line 42 in `main.py`.
+- `app.py:User.login` - The `login` method of class `User` in `app.py`.
+- `utils.py@process_data<|>` - Position at the symbol `process_data` in `utils.py`.
+- `api.py:10,50@config` - The string `config` within lines 10-50 of `api.py`.
+
+Use `lsp locate <string>` to verify a location before running other commands.
+
 ## Commands
 
 All commands support `-h` or `--help`. Command aliases: `def` (definition), `ref` (reference), `sym` (symbol).
-
-### Locating Symbols
-
-Most commands require specifying a location in the file. Use `--scope` and `--find` together or separately.
-
-#### `--scope` (or `-s`)
-
-Narrows down the search area:
-
-**Line Number** (1-based):
-
-```bash
-lsp definition main.py --scope 42
-```
-
-Use when you know the exact line number.
-
-**Line Range**:
-
-```bash
-lsp reference utils.py --scope 10,50
-```
-
-Searches between lines 10-50. Useful for targeting specific functions or classes.
-
-**Symbol Path**:
-
-```bash
-lsp definition models.py --scope User.profile.update
-lsp hover api.py --scope AuthService.login
-```
-
-Navigate nested symbols. Language server resolves the path to exact location.
-
-#### `--find` (or `-f`)
-
-Text-based search within the file (or within `--scope` if specified). Focus on the exact and unique text snippet. Ignore spaces and newlines in your search string; it matches even if code formatting differs.
-
-**Basic text search**:
-
-```bash
-lsp definition main.py --find "process_data"
-```
-
-Finds first occurrence of the text. `--find "a+b"` matches `a + b` or `a\n   + b`.
-
-**Exact position with `<HERE>` marker**:
-
-```bash
-lsp hover app.py --find "user<HERE>.name"
-lsp definition main.py --find "calculate<HERE>(x, y)"
-```
-
-The `<HERE>` marker indicates cursor position for symbol resolution. Useful when multiple symbols share the same name.
-
-#### Combining `--scope` and `--find`
-
-**RECOMMENDED**: Combine both for precise targeting:
-
-```bash
-# Find symbol within a specific function
-lsp reference main.py --scope MyClass.process --find "logger"
-
-# Search within line range
-lsp definition utils.py --scope 100,200 --find "validate"
-
-# Find within symbol path
-lsp hover models.py --scope User --find "email"
-```
-
-This narrows the search space, improving accuracy in large files.
 
 ### Outline: File Structure
 
@@ -117,17 +65,14 @@ lsp outline <file_path> --all
 Jump to symbol definitions. **RECOMMENDED** for verifying function signatures without reading full implementation.
 
 ```bash
-# By symbol path (alias: lsp def)
-lsp definition src/models.py --scope User.get_id
-
-# By line and text
-lsp definition src/main.py --scope 10 --find "process_data"
+# By locate string (alias: lsp def)
+lsp definition -L "models.py:User.get_id"
 
 # Declaration instead of definition
-lsp definition models.py --scope 25 --decl
+lsp definition -L "models.py:25" --decl
 
 # Type definition
-lsp definition models.py --scope 30 --type
+lsp definition -L "models.py:30" --type
 ```
 
 ### Reference: Find All Usages
@@ -136,13 +81,25 @@ lsp definition models.py --scope 30 --type
 
 ```bash
 # Find references (alias: lsp ref)
-lsp reference src/main.py --scope MyClass.run --find "logger"
+lsp reference -L "main.py:MyClass.run@logger"
 
 # Find implementations
-lsp reference src/api.py --find "IDataProvider" --impl
+lsp reference -L "api.py@IDataProvider" --impl
 
 # More context lines
-lsp reference app.py --scope 10 --context-lines 5
+lsp reference -L "app.py:10@TestClass" --context-lines 5
+```
+
+### Hover: Get Documentation
+
+**SHOULD** prefer over `read` for understanding API contracts. Returns docstrings and type signatures.
+
+```bash
+# By line
+lsp hover -L "main.py:42"
+
+# By text search
+lsp hover -L "models.py@process_data<|>"
 ```
 
 ### Search: Global Symbol Search
@@ -163,31 +120,31 @@ lsp search "init" --kind function --kind method
 lsp search "Config" --max-items 10
 ```
 
+### Rename: Safe Refactoring
+
+Rename a symbol workspace-wide. Defaults to preview mode.
+
+```bash
+# Preview changes
+lsp rename new_name -L "models.py:OldName"
+
+# Execute changes (requires --execute)
+lsp rename new_name -L "models.py:OldName" --execute
+
+# Apply using a specific rename ID from a previous preview
+lsp rename new_name -L "models.py:OldName" --execute --id rename_abc123
+```
+
 ### Symbol: Local Symbol Info
 
-Get precise symbol location. **MAY** be used to anchor subsequent `hover` or `definition` calls.
+Get precise coordinate info for a symbol. **MAY** be used to anchor subsequent `hover` or `definition` calls.
 
 ```bash
 # By line (alias: lsp sym)
-lsp symbol src/main.py --scope 15
+lsp symbol -L "main.py:15"
 
 # By text search
-lsp symbol utils.py --find "UserClass<HERE>"
-```
-
-### Hover: Get Documentation
-
-**SHOULD** prefer over `read` for understanding API contracts. Returns docstrings and type signatures.
-
-```bash
-# By line
-lsp hover src/main.py --scope 42
-
-# By text search
-lsp hover models.py --find "process_data<HERE>"
-
-# Markdown output
-lsp hover main.py --scope 10 --markdown
+lsp symbol -L "utils.py@UserClass<|>"
 ```
 
 ### Server: Manage Background Servers
@@ -213,78 +170,33 @@ lsp server stop <path>
 
 **RECOMMENDED** sequence for exploring new codebases:
 
-1. **Start with outline** - Get file structure without reading implementation
-
-   ```bash
-   lsp outline src/main.py
-   ```
-
-2. **Inspect signatures** - Use `hover` to understand API contracts
-
-   ```bash
-   lsp hover src/main.py --scope process_request
-   ```
-
-3. **Navigate dependencies** - Follow `definition` chains
-
-   ```bash
-   lsp definition src/main.py --scope 15 --find "validate"
-   ```
-
-4. **Map usage** - Find where code is called
-   ```bash
-   lsp reference src/validators.py --scope validate_input
-   ```
+1. **Start with outline** - Get file structure without reading implementation.
+2. **Inspect signatures** - Use `hover` to understand API contracts.
+3. **Navigate dependencies** - Follow `definition` chains.
+4. **Map usage** - Find where code is called with `reference`.
 
 #### Refactoring Preparation
 
 **REQUIRED** steps before modifying code:
 
-1. **Find all references** - Identify impact scope
-
-   ```bash
-   lsp reference models.py --scope User.email
-   ```
-
-2. **Check implementations** - For interfaces/abstract classes
-
-   ```bash
-   lsp reference interfaces.py --scope IRepository --impl
-   ```
-
-3. **Verify type definitions** - Understand type propagation
-   ```bash
-   lsp definition types.py --scope UserType --type
-   ```
+1. **Find all references** - Identify impact scope.
+2. **Check implementations** - For interfaces/abstract classes using `--impl`.
+3. **Verify type definitions** - Understand type propagation with `--type`.
+4. **Preview Rename** - Use `lsp rename` to see workspace-wide impact.
 
 #### Debugging Unknown Behavior
 
-When tracking down unexpected behavior:
-
-1. **Search for the symbol** - Locate where it's defined
-
-   ```bash
-   lsp search "handle_error" --kind function
-   ```
-
-2. **Find the definition** - Verify implementation
-
-   ```bash
-   lsp definition app.py --find "handle_error<HERE>"
-   ```
-
-3. **Trace all callers** - See where it's invoked
-   ```bash
-   lsp reference app.py --scope handle_error --context-lines 5
-   ```
+1. **Search for the symbol** - Locate where it's defined with `lsp search`.
+2. **Find the definition** - Verify implementation.
+3. **Trace all callers** - See where it's invoked using `lsp reference`.
 
 ### Performance Tips
 
-- **Use `outline` aggressively** - Avoid reading entire files when possible
-- **Combine `--scope` and `--find`** - Narrow search space in large files
-- **Leverage symbol paths** - More precise than line numbers for nested structures
-- **Use `--max-items`** - Limit results in large codebases
-- **Prefer `hover` over `definition`** - For understanding without navigating
+- **Use `outline` aggressively** - Avoid reading entire files when possible.
+- **Leverage symbol paths** - More precise than line numbers for nested structures.
+- **Use `--max-items`** - Limit results in large codebases.
+- **Prefer `hover` over `definition`** - For understanding without navigating.
+- **Verify with `locate`** - If a command fails, use `lsp locate` to debug the target.
 
 ### Common Patterns
 
@@ -295,7 +207,7 @@ When tracking down unexpected behavior:
 lsp search "IUserService" --kind interface
 
 # Step 2: Find all implementations
-lsp reference src/interfaces.py --scope IUserService --impl
+lsp reference -L "src/interfaces.py:IUserService" --impl
 ```
 
 #### Tracing Data Flow
@@ -305,23 +217,23 @@ lsp reference src/interfaces.py --scope IUserService --impl
 lsp search "UserDTO" --kind class
 
 # Step 2: Find where it's used
-lsp reference models.py --scope UserDTO
+lsp reference -L "models.py:UserDTO"
 
 # Step 3: Check transformations
-lsp hover transform.py --scope map_to_dto
+lsp hover -L "transform.py:map_to_dto"
 ```
 
 #### Understanding Type Hierarchies
 
 ```bash
 # Step 1: Get class outline
-lsp outline models.py --scope BaseModel
+lsp outline models.py
 
 # Step 2: Find subclasses (references to base)
-lsp reference models.py --scope BaseModel
+lsp reference -L "models.py:BaseModel"
 
 # Step 3: Check type definitions
-lsp definition models.py --scope BaseModel --type
+lsp definition -L "models.py:BaseModel" --type
 ```
 
 ### Domain-Specific Guides
