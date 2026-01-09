@@ -45,13 +45,28 @@ uv tool install --python 3.13 lsp-cli
 
 ### How it Works
 
-This skill wraps the `lsp` command line tool, which acts as a bridge between the agent and standard Language Servers (like Pyright, tsserver, rust-analyzer).
+This skill wraps the `lsp` command line tool, which acts as a bridge between the agent and standard Language Servers (like **basedpyright**, **typescript-language-server**, **rust-analyzer**).
 
 When an agent invokes this skill:
 
 1.  **Intelligent Locating**: The skill converts fuzzy intents (e.g., "find the `process` function") into precise file coordinates using LSAP's anchoring mechanism.
 2.  **Server Management**: It automatically manages the lifecycle of background language servers.
 3.  **Cognitive Snapshots**: It returns code context in optimized Markdown formats designed for LLM reasoning (Progressive Disclosure).
+
+## 🌐 Supported Languages
+
+This skill currently provides out-of-the-box support for the following languages:
+
+| Language                    | Language Server                                                                                        |
+| :-------------------------- | :----------------------------------------------------------------------------------------------------- |
+| **Python**                  | [basedpyright](https://github.com/detachhead/basedpyright)                                             |
+| **Rust**                    | [rust-analyzer](https://rust-analyzer.github.io/)                                                      |
+| **TypeScript / JavaScript** | [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) |
+| **Go**                      | [gopls](https://pkg.go.dev/golang.org/x/tools/gopls)                                                   |
+| **Deno**                    | [deno lsp](https://deno.land/)                                                                         |
+| **Java**                    | [jdtls](https://github.com/eclipse/eclipse.jdt.ls)                                                     |
+
+More language support coming very very soon!
 
 ## 📚 Documentation
 
@@ -85,9 +100,8 @@ This Agent Skill features a three-tier extensibility design that ensures its cap
 
 ### 1. Foundation Expansion - LSP Client
 
-The underlying [lsp-client](https://github.com/lsp-client/lsp-client) library continuously expands support for more language servers and LSP protocol capabilities:
+The underlying [lsp-client](https://github.com/lsp-client/lsp-client) library continuously expands support for more language servers and LSP protocol capabilities.
 
-- **Broader Language Server Support**: Currently supports Python, Rust, TypeScript, Go, etc., with continuous additions for more language ecosystems
 - **Full LSP 3.17 Specification Coverage**: As the LSP protocol evolves, new standard capabilities (Type Hierarchy, Call Hierarchy, Inline Values, etc.) will be continuously integrated
 
 ### 2. Tool Capability Expansion - LSAP Protocol
