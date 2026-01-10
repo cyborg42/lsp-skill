@@ -42,10 +42,10 @@ DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/lsp-code-analysi
 
 TMP_ZIP=$(mktemp)
 echo "Downloading $DOWNLOAD_URL..."
-if ! curl -L -f -o "$TMP_ZIP" "$DOWNLOAD_URL"; then
+if ! curl -sSL -f -o "$TMP_ZIP" "$DOWNLOAD_URL"; then
     echo "Error: Failed to download from $DOWNLOAD_URL. Falling back to API..."
     # Fallback to API if direct download fails (e.g. no release assets yet)
-    RELEASE_DATA=$(curl -s "https://api.github.com/repos/$REPO/releases/latest")
+    RELEASE_DATA=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest")
     DOWNLOAD_URL=$(echo "$RELEASE_DATA" | grep "browser_download_url" | grep ".zip" | head -n 1 | cut -d '"' -f 4)
     if [ -z "$DOWNLOAD_URL" ]; then
         DOWNLOAD_URL=$(echo "$RELEASE_DATA" | grep "zipball_url" | head -n 1 | cut -d '"' -f 4)
@@ -54,7 +54,7 @@ if ! curl -L -f -o "$TMP_ZIP" "$DOWNLOAD_URL"; then
         echo "Error: Could not find download URL for latest release."
         exit 1
     fi
-    curl -L -o "$TMP_ZIP" "$DOWNLOAD_URL"
+    curl -sSL -o "$TMP_ZIP" "$DOWNLOAD_URL"
 fi
 
 echo "Extracting to $TARGET_DIR..."
