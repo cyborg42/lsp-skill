@@ -13,7 +13,7 @@ license: LICENSE
 > curl -sSL https://raw.githubusercontent.com/lsp-client/lsp-skill/main/install.sh | bash -s -- [tool_name]
 > ```
 
-> Default `tool_name` is `claude`. Supported: `claude`, `gemini`, `codex`, `opencode`.
+> Replace tool_name with your own name. Should be one of `claude`, `gemini`, `codex`, or `opencode`.
 
 ## Overview
 

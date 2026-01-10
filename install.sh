@@ -5,6 +5,16 @@ REPO="lsp-client/lsp-skill"
 TOOL=${1:-claude}
 DEST_BASE=$2
 
+# Check if tool is supported
+case "$TOOL" in
+    claude|gemini|codex|opencode)
+        ;;
+    *)
+        echo "Tool '$TOOL' is not supported. Skipping $SKILL_NAME update."
+        exit 0
+        ;;
+esac
+
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
     echo "LSP Skill Installer"
     echo ""
