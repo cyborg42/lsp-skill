@@ -4,6 +4,7 @@
 [![Protocol Version](https://img.shields.io/badge/Protocol-v1.0.0--alpha-blue.svg)](references/lsap.md)
 
 > IntelliSense Designed for Coding Agent
+> Check our [website](https://lsp-client.github.io)!
 
 This [agent skill](https://agentskills.io) equips AI agents with the [Language Server Agent Protocol (LSAP)](https://github.com/lsp-client/LSAP), enabling them to navigate, understand, and analyze codebases with the same fidelity as a human developer using VS Code.
 
