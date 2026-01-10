@@ -12,13 +12,21 @@ Instead of guessing file paths or grepping for text, agents using this skill can
 
 ## 📦 Installation
 
-You can install this skill using [openskills](https://github.com/numman-ali/openskills):
+### Option 1: Automatic Installation (Recommended for AI Agents)
+You can install and keep the skill updated using our universal installer:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/lsp-client/lsp-skill/main/install.sh | bash -s -- [tool_name]
+```
+- **tool_name**: `claude` (default), `gemini`, `codex`, or `opencode`.
+- The installer automatically handles directory structure and version tracking.
+
+### Option 2: Using openskills
+You can also use [openskills](https://github.com/numman-ali/openskills):
 
 ```bash
 openskills install lsp-client/lsp-skill --global
 ```
-
-For instructions on how to install this skill in different Coding Agents, please refer to the [Installation Guide](https://lsp-client.github.io/#installation).
 
 ## ⚡ Capabilities
 
