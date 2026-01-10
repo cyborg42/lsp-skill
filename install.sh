@@ -42,6 +42,24 @@ fi
 SKILL_NAME="lsp-code-analysis"
 TARGET_DIR="$DEST_BASE/$SKILL_NAME"
 
+# Fetch latest release info
+echo "Checking for updates for $SKILL_NAME..."
+RELEASE_DATA=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest")
+LATEST_VERSION=$(echo "$RELEASE_DATA" | grep '"tag_name":' | head -n 1 | sed -E 's/.*"tag_name": "([^"]+)".*/\1/')
+
+if [ -z "$LATEST_VERSION" ]; then
+    echo "Warning: Could not determine latest version. Proceeding with installation..."
+else
+    if [ -f "$TARGET_DIR/.version" ]; then
+        CURRENT_VERSION=$(cat "$TARGET_DIR/.version")
+        if [ "$LATEST_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "$SKILL_NAME is already at the latest version ($LATEST_VERSION). Skipping update."
+            exit 0
+        fi
+    fi
+    echo "Updating $SKILL_NAME from $CURRENT_VERSION to $LATEST_VERSION..."
+fi
+
 echo "Installing $SKILL_NAME for $TOOL into $TARGET_DIR..."
 
 # Create target directory if it doesn't exist
@@ -53,9 +71,7 @@ DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/lsp-code-analysi
 TMP_ZIP=$(mktemp)
 echo "Downloading $DOWNLOAD_URL..."
 if ! curl -sSL -f -o "$TMP_ZIP" "$DOWNLOAD_URL"; then
-    echo "Error: Failed to download from $DOWNLOAD_URL. Falling back to API..."
-    # Fallback to API if direct download fails (e.g. no release assets yet)
-    RELEASE_DATA=$(curl -sSL "https://api.github.com/repos/$REPO/releases/latest")
+    echo "Error: Failed to download from $DOWNLOAD_URL. Falling back to API download URL..."
     DOWNLOAD_URL=$(echo "$RELEASE_DATA" | grep "browser_download_url" | grep ".zip" | head -n 1 | cut -d '"' -f 4)
     if [ -z "$DOWNLOAD_URL" ]; then
         DOWNLOAD_URL=$(echo "$RELEASE_DATA" | grep "zipball_url" | head -n 1 | cut -d '"' -f 4)
@@ -84,7 +100,12 @@ else
     mv "$TARGET_DIR.tmp/"* "$TARGET_DIR/" 2>/dev/null || true
 fi
 
+# Save version information
+if [ -n "$LATEST_VERSION" ]; then
+    echo "$LATEST_VERSION" > "$TARGET_DIR/.version"
+fi
+
 rm -rf "$TARGET_DIR.tmp"
 rm "$TMP_ZIP"
 
-echo "Successfully installed/updated $SKILL_NAME."
+echo "Successfully installed/updated $SKILL_NAME to $LATEST_VERSION."
