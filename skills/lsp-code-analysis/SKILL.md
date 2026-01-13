@@ -1,6 +1,6 @@
 ---
 name: lsp-code-analysis
-version: 0.2.2
+version: 0.2.3
 description: Semantic code analysis via LSP. Navigate code (definitions, references, implementations), search symbols, preview refactorings, and get file outlines. Use for exploring unfamiliar codebases or performing safe refactoring.
 license: LICENSE
 ---
